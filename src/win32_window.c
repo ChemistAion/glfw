@@ -35,6 +35,7 @@
 #include <string.h>
 #include <windowsx.h>
 #include <shellapi.h>
+#include <time.h>
 
 // Returns the window style for the specified window
 //
@@ -1401,14 +1402,13 @@ void _glfwUnregisterWindowClassWin32(void)
 WCHAR* _glfwGenerateWindowClassName()
 {
     // #:s are replaced with random letters between a and z
-    char name[] = "GLFW3_CC_####";
+    char name[] = "GLFW3_cc_####";
 
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     for (int i = 9; i < 13; ++i)
     {
         name[i] = 'a' + rand() % ('z' - 'a' + 1);
     }
-    printf(name);
     return _glfwCreateWideStringFromUTF8Win32(name);
 }
 

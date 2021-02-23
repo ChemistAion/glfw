@@ -554,8 +554,6 @@ BOOL _glfwIsWindows10BuildOrGreaterWin32(WORD build)
 
 int _glfwPlatformInit(void)
 {
-    int windowClassRetries = 3;
-
     // To make SetForegroundWindow work as we want, we need to fiddle
     // with the FOREGROUNDLOCKTIMEOUT system setting (we do this as early
     // as possible in the hope of still being the foreground process)
@@ -577,9 +575,11 @@ int _glfwPlatformInit(void)
     else if (IsWindowsVistaOrGreater())
         SetProcessDPIAware();
 
-    // If RegisterWindowClass fails, try again. There is a very, very
-    // unlikely chance that 2 instances generated the same window class
-    // name (about 2 in 1e6). That it happens 3 in a row is one in 1e17
+    // If RegisterWindowClass fails, try again. There is a very, very unlikely
+    // chance that 2 instances generated the same window class name (about 2 in 1e6).
+    // That it happens 3 time in a row though, is one in 1e17, essentially non-existant.
+    int windowClassRetries = 3;
+
     while (windowClassRetries-- > 0 && _glfwRegisterWindowClassWin32() == GLFW_FALSE)
     {}
 
