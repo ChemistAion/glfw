@@ -1259,7 +1259,7 @@ static int createNativeWindow(_GLFWwindow* window,
         return GLFW_FALSE;
 
     window->win32.handle = CreateWindowExW(exStyle,
-                                           _GLFW_WNDCLASSNAME,
+                                           _glfw.win32.windowClassName,
                                            wideTitle,
                                            style,
                                            xpos, ypos,
@@ -1349,6 +1349,14 @@ static int createNativeWindow(_GLFWwindow* window,
 //
 GLFWbool _glfwRegisterWindowClassWin32(void)
 {
+    WCHAR* windowClassName = _glfwGenerateWindowClassName();
+    if (!windowClassName)
+    {
+        _glfwInputErrorWin32(GLFW_PLATFORM_ERROR, "Win32: Failed to create window class name");
+        return GLFW_FALSE;
+    }
+    _glfw.win32.windowClassName = windowClassName;
+
     WNDCLASSEXW wc;
 
     ZeroMemory(&wc, sizeof(wc));
@@ -1357,7 +1365,7 @@ GLFWbool _glfwRegisterWindowClassWin32(void)
     wc.lpfnWndProc   = (WNDPROC) windowProc;
     wc.hInstance     = GetModuleHandleW(NULL);
     wc.hCursor       = LoadCursorW(NULL, IDC_ARROW);
-    wc.lpszClassName = _GLFW_WNDCLASSNAME;
+    wc.lpszClassName = windowClassName;
 
     // Load user-provided icon if available
     wc.hIcon = LoadImageW(GetModuleHandleW(NULL),
@@ -1385,9 +1393,24 @@ GLFWbool _glfwRegisterWindowClassWin32(void)
 //
 void _glfwUnregisterWindowClassWin32(void)
 {
-    UnregisterClassW(_GLFW_WNDCLASSNAME, GetModuleHandleW(NULL));
+    UnregisterClassW(_glfw.win32.windowClassName, GetModuleHandleW(NULL));
 }
 
+// Generates a unique WindowClassName for use until glfw is terminated
+//
+WCHAR* _glfwGenerateWindowClassName()
+{
+    // #:s are replaced with random letters between a and z
+    char name[] = "GLFW3_CC_####";
+
+    srand(time(NULL));
+    for (int i = 9; i < 13; ++i)
+    {
+        name[i] = 'a' + rand() % ('z' - 'a' + 1);
+    }
+    printf(name);
+    return _glfwCreateWideStringFromUTF8Win32(name);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////

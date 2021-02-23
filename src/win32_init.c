@@ -339,7 +339,7 @@ static GLFWbool createHelperWindow(void)
 
     _glfw.win32.helperWindowHandle =
         CreateWindowExW(WS_EX_OVERLAPPEDWINDOW,
-                        _GLFW_WNDCLASSNAME,
+                        _glfw.win32.windowClassName,
                         L"GLFW message window",
                         WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                         0, 0, 1, 1,
@@ -554,6 +554,8 @@ BOOL _glfwIsWindows10BuildOrGreaterWin32(WORD build)
 
 int _glfwPlatformInit(void)
 {
+    int windowClassRetries = 3;
+
     // To make SetForegroundWindow work as we want, we need to fiddle
     // with the FOREGROUNDLOCKTIMEOUT system setting (we do this as early
     // as possible in the hope of still being the foreground process)
@@ -575,8 +577,16 @@ int _glfwPlatformInit(void)
     else if (IsWindowsVistaOrGreater())
         SetProcessDPIAware();
 
-    if (!_glfwRegisterWindowClassWin32())
+    // If RegisterWindowClass fails, try again. There is a very, very
+    // unlikely chance that 2 instances generated the same window class
+    // name (about 2 in 1e6). That it happens 3 in a row is one in 1e17
+    while (windowClassRetries-- > 0 && _glfwRegisterWindowClassWin32() == GLFW_FALSE)
+    {}
+
+    if (windowClassRetries == 0)
+    {
         return GLFW_FALSE;
+    }
 
     if (!createHelperWindow())
         return GLFW_FALSE;

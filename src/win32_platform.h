@@ -280,10 +280,6 @@ typedef VkBool32 (APIENTRY *PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(
 #include "win32_joystick.h"
 #include "wgl_context.h"
 
-#if !defined(_GLFW_WNDCLASSNAME)
- #define _GLFW_WNDCLASSNAME L"GLFW30"
-#endif
-
 #define _glfw_dlopen(name) LoadLibraryA(name)
 #define _glfw_dlclose(handle) FreeLibrary((HMODULE) handle)
 #define _glfw_dlsym(handle, name) GetProcAddress((HMODULE) handle, name)
@@ -343,6 +339,8 @@ typedef struct _GLFWlibraryWin32
     RAWINPUT*           rawInput;
     int                 rawInputSize;
     UINT                mouseTrailSize;
+    // The generated WindowClassName
+    WCHAR*              windowClassName;
 
     struct {
         HINSTANCE                       instance;
@@ -452,6 +450,8 @@ BOOL _glfwIsWindowsVersionOrGreaterWin32(WORD major, WORD minor, WORD sp);
 BOOL _glfwIsWindows10BuildOrGreaterWin32(WORD build);
 void _glfwInputErrorWin32(int error, const char* description);
 void _glfwUpdateKeyNamesWin32(void);
+
+WCHAR* _glfwGenerateWindowClassName();
 
 void _glfwInitTimerWin32(void);
 
