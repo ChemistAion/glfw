@@ -67,7 +67,7 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 //
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
-    DWORD style = WS_EX_APPWINDOW;
+    DWORD style = 0; // WS_EX_APPWINDOW;
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
@@ -557,8 +557,10 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 if (LOWORD(lParam) != HTCLIENT)
                     window->win32.frameAction = GLFW_TRUE;
             }
-
-            break;
+            /* Stay unfocused but keep receiving mouse events, as the plugin window
+               is a child window and as such should not have keyboard focus in order
+               to let key events through to the host */
+            return MA_NOACTIVATE;
         }
 
         case WM_CAPTURECHANGED:
