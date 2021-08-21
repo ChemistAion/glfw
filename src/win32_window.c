@@ -56,6 +56,8 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
             if (window->resizable)
                 style |= WS_MAXIMIZEBOX | WS_THICKFRAME;
         }
+        else if (window->embeddedWindow)
+            style |= WS_CHILD;
         else
             style |= WS_POPUP;
     }
@@ -1267,7 +1269,7 @@ static int createNativeWindow(_GLFWwindow* window,
                                            style,
                                            xpos, ypos,
                                            fullWidth, fullHeight,
-                                           NULL, // No parent window
+                                           window->embeddedWindow ? (HWND) window->parentId : NULL, // Specify parent window if enabled
                                            NULL, // No window menu
                                            GetModuleHandleW(NULL),
                                            (LPVOID) wndconfig);
@@ -1339,6 +1341,13 @@ static int createNativeWindow(_GLFWwindow* window,
     }
 
     _glfwPlatformGetWindowSize(window, &window->win32.width, &window->win32.height);
+
+    // Set embedded window owner
+    if (window->embeddedWindow)
+    {
+        SetWindowLongPtr(window->win32.handle, GWLP_HWNDPARENT, (LONG_PTR) window->parentId);
+        UpdateWindow(window->win32.handle);
+    }
 
     return GLFW_TRUE;
 }
@@ -1472,6 +1481,11 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 
     if (_glfw.win32.disabledCursorWindow == window)
         _glfw.win32.disabledCursorWindow = NULL;
+
+    // Also do not forget to reparent embedded window,
+    // or parent application will freeze!
+    if (window->embeddedWindow)
+        SetParent(window->win32.handle, NULL);
 
     if (window->win32.handle)
     {

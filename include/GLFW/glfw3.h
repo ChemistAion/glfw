@@ -902,6 +902,18 @@ extern "C" {
  */
 #define GLFW_MOUSE_PASSTHROUGH      0x0002000D
 
+/*! @brief Embed GLFW window to other parent window
+ *
+ *  Embed window [window hint](@ref GLFW_EMBEDDED_WINDOW_hint)
+ */
+#define GLFW_EMBEDDED_WINDOW      0x0002000E
+/*! @brief Specify parent window ID if embedded
+ *
+ *  Parent window ID [window hint](@ref GLFW_PARENT_WINDOW_ID_hint)
+ */
+#define GLFW_PARENT_WINDOW_ID      0x0002000F
+
+
 /*! @brief Framebuffer bit depth hint.
  *
  *  Framebuffer bit depth [hint](@ref GLFW_RED_BITS).
@@ -2669,6 +2681,44 @@ GLFWAPI void glfwWindowHint(int hint, int value);
  *  @ingroup window
  */
 GLFWAPI void glfwWindowHintString(int hint, const char* value);
+
+/*! @brief Sets the specified window hint to the desired value.
+ *
+ *  This function sets hints for the next call to @ref glfwCreateWindow.  The
+ *  hints, once set, retain their values until changed by a call to this
+ *  function or @ref glfwDefaultWindowHints, or until the library is terminated.
+ *
+ *  Only void* type hints can be set with this function.  Integer value hints
+ *  are set with @ref glfwWindowHint.
+ *
+ *  This function does not check whether the specified hint values are valid.
+ *  If you set hints to invalid values this will instead be reported by the next
+ *  call to @ref glfwCreateWindow.
+ *
+ *  Some hints are platform specific.  These may be set on any platform but they
+ *  will only affect their specific platform.  Other platforms will ignore them.
+ *  Setting these hints requires no platform specific headers or functions.
+ *
+ *  @param[in] hint The [window hint](@ref window_hints) to set.
+ *  @param[in] value The new value of the window hint.
+ *
+ *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
+ *  GLFW_INVALID_ENUM.
+ *
+ *  @pointer_lifetime The specified string is copied before this function
+ *  returns.
+ *
+ *  @thread_safety This function must only be called from the main thread.
+ *
+ *  @sa @ref window_hints
+ *  @sa @ref glfwWindowHint
+ *  @sa @ref glfwDefaultWindowHints
+ *
+ *  @since Added in version 3.3.
+ *
+ *  @ingroup window
+ */
+GLFWAPI void glfwWindowHintVoid(int hint, void* value);
 
 /*! @brief Creates a window and its associated context.
  *
