@@ -1022,14 +1022,14 @@ static Window createHelperWindow(void)
 
 // X error handler
 //
-static int errorHandler(Display *display, XErrorEvent* event)
+/*static int errorHandler(Display *display, XErrorEvent* event)
 {
     if (_glfw.x11.display != display)
         return 0;
 
     _glfw.x11.errorCode = event->error_code;
     return 0;
-}
+}*/
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -1040,8 +1040,13 @@ static int errorHandler(Display *display, XErrorEvent* event)
 //
 void _glfwGrabErrorHandlerX11(void)
 {
-    _glfw.x11.errorCode = Success;
-    XSetErrorHandler(errorHandler);
+    // If run as a plugin, i.e. inside another process, installing a custom
+    // error handler will delete any error handler installed by the host
+    // process, with no way of reverting it. So don't do that!
+    // Reaper in particular may crash because of this.
+
+    //_glfw.x11.errorCode = Success;
+    //XSetErrorHandler(errorHandler);
 }
 
 // Clears the X error handler callback
@@ -1050,7 +1055,7 @@ void _glfwReleaseErrorHandlerX11(void)
 {
     // Synchronize to make sure all commands are processed
     XSync(_glfw.x11.display, False);
-    XSetErrorHandler(NULL);
+    //XSetErrorHandler(NULL);
 }
 
 // Reports the specified error, appending information about the last X error
