@@ -289,6 +289,9 @@ void glfwDefaultWindowHints(void)
 
     // The default is to use full Retina resolution framebuffers
     _glfw.hints.window.ns.retina = GLFW_TRUE;
+
+    // The default is to create a top level window
+    _glfw.hints.window.embeddedWindow = GLFW_FALSE;
 }
 
 GLFWAPI void glfwWindowHint(int hint, int value)

@@ -604,6 +604,7 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
 {
     int width = wndconfig->width;
     int height = wndconfig->height;
+    Window parent_window;
 
     if (wndconfig->scaleToMonitor)
     {
@@ -628,9 +629,18 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
 
     _glfwGrabErrorHandlerX11();
 
-    window->x11.parent = _glfw.x11.root;
+    if (wndconfig->embeddedWindow)
+    {
+        parent_window = (Window)wndconfig->parentId;
+    }
+    else
+    {
+        parent_window = _glfw.x11.root;
+    }
+
+    window->x11.parent = parent_window;
     window->x11.handle = XCreateWindow(_glfw.x11.display,
-                                       _glfw.x11.root,
+                                       parent_window,
                                        0, 0,   // Position
                                        width, height,
                                        0,      // Border width
@@ -2061,7 +2071,7 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
     if (window->x11.handle)
     {
         XDeleteContext(_glfw.x11.display, window->x11.handle, _glfw.x11.context);
-        XUnmapWindow(_glfw.x11.display, window->x11.handle);
+        //XUnmapWindow(_glfw.x11.display, window->x11.handle);
         XDestroyWindow(_glfw.x11.display, window->x11.handle);
         window->x11.handle = (Window) 0;
     }
