@@ -562,6 +562,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 if (LOWORD(lParam) != HTCLIENT)
                     window->win32.frameAction = GLFW_TRUE;
             }
+            break;
             /* Stay unfocused but keep receiving mouse events, as the plugin window
                is a child window and as such should not have keyboard focus in order
                to let key events through to the host */
@@ -1304,7 +1305,10 @@ static int createNativeWindow(_GLFWwindow* window,
     // Adjust window rect to account for DPI scaling of the window frame and
     // (if enabled) DPI scaling of the content area
     // This cannot be done until we know what monitor the window was placed on
-    if (!window->monitor)
+    //
+    // Further, this messes up the positioning inside the parent window for an
+    // embedded window. Until that is sorted, don't do this for embedded windows
+    if (!window->monitor && !window->embeddedWindow)
     {
         RECT rect = { 0, 0, wndconfig->width, wndconfig->height };
         WINDOWPLACEMENT wp = { sizeof(wp) };
@@ -1484,11 +1488,6 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 
     if (_glfw.win32.disabledCursorWindow == window)
         _glfw.win32.disabledCursorWindow = NULL;
-
-    // Also do not forget to reparent embedded window,
-    // or parent application will freeze!
-    if (window->embeddedWindow)
-        SetParent(window->win32.handle, NULL);
 
     if (window->win32.handle)
     {
