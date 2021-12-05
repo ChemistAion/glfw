@@ -47,8 +47,6 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
         style |= WS_POPUP;
     else
     {
-        style |= WS_SYSMENU | WS_MINIMIZEBOX;
-
         if (window->decorated)
         {
             style |= WS_CAPTION;
@@ -59,7 +57,7 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
         else if (window->embeddedWindow)
             style |= WS_CHILD;
         else
-            style |= WS_POPUP;
+            style |= WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX;
     }
 
     return style;
@@ -69,10 +67,15 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 //
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
-    DWORD style = 0; // WS_EX_APPWINDOW;
+    DWORD style = 0u;
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
+
+    if (window->embeddedWindow)
+        style |= WS_EX_NOINHERITLAYOUT;
+    else
+        style |= WS_EX_APPWINDOW;
 
     return style;
 }
