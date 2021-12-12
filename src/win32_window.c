@@ -1349,13 +1349,6 @@ static int createNativeWindow(_GLFWwindow* window,
 
     _glfwPlatformGetWindowSize(window, &window->win32.width, &window->win32.height);
 
-    // Set embedded window owner
-    if (window->embeddedWindow)
-    {
-        SetWindowLongPtr(window->win32.handle, GWLP_HWNDPARENT, (LONG_PTR) window->parentId);
-        UpdateWindow(window->win32.handle);
-    }
-
     return GLFW_TRUE;
 }
 
