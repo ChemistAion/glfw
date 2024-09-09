@@ -1436,6 +1436,7 @@ static void processEvent(XEvent *event)
             if (window->cursorMode == GLFW_CURSOR_HIDDEN)
                 updateCursorImage(window);
 
+            XSetInputFocus(_glfw.x11.display, window->x11.handle, RevertToParent, CurrentTime);
             _glfwInputCursorEnter(window, GLFW_TRUE);
             _glfwInputCursorPos(window, x, y);
 
