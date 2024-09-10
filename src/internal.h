@@ -406,6 +406,8 @@ struct _GLFWwndconfig
     GLFWbool      mousePassthrough;
     GLFWbool      scaleToMonitor;
     GLFWbool      scaleFramebuffer;
+    GLFWbool      embeddedWindow;
+    void*         parentId;
     struct {
         char      frameName[256];
     } ns;
@@ -530,6 +532,8 @@ struct _GLFWwindow
     GLFWbool            focusOnShow;
     GLFWbool            mousePassthrough;
     GLFWbool            shouldClose;
+    GLFWbool            embeddedWindow;
+    void*               parentId;
     void*               userPointer;
     GLFWbool            doublebuffer;
     GLFWvidmode         videoMode;

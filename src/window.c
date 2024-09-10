@@ -234,6 +234,9 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     window->mousePassthrough = wndconfig.mousePassthrough;
     window->cursorMode       = GLFW_CURSOR_NORMAL;
 
+    window->embeddedWindow   = wndconfig.embeddedWindow;
+    window->parentId         = wndconfig.parentId;
+
     window->doublebuffer = fbconfig.doublebuffer;
 
     window->minwidth    = GLFW_DONT_CARE;
@@ -276,6 +279,8 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.window.xpos         = GLFW_ANY_POSITION;
     _glfw.hints.window.ypos         = GLFW_ANY_POSITION;
     _glfw.hints.window.scaleFramebuffer = GLFW_TRUE;
+
+    _glfw.hints.window.embeddedWindow = GLFW_FALSE;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil,
     // double buffered
@@ -373,6 +378,9 @@ GLFWAPI void glfwWindowHint(int hint, int value)
         case GLFW_POSITION_Y:
             _glfw.hints.window.ypos = value;
             return;
+        case GLFW_EMBEDDED_WINDOW:
+            _glfw.hints.window.embeddedWindow = value ? GLFW_TRUE : GLFW_FALSE;
+            return;
         case GLFW_WIN32_KEYBOARD_MENU:
             _glfw.hints.window.win32.keymenu = value ? GLFW_TRUE : GLFW_FALSE;
             return;
@@ -434,6 +442,22 @@ GLFWAPI void glfwWindowHint(int hint, int value)
     }
 
     _glfwInputError(GLFW_INVALID_ENUM, "Invalid window hint 0x%08X", hint);
+}
+
+GLFWAPI void glfwWindowHintVoid(int hint, void* value)
+{
+    assert(value != NULL);
+
+    _GLFW_REQUIRE_INIT();
+
+    switch (hint)
+    {
+        case GLFW_PARENT_WINDOW_ID:
+            _glfw.hints.window.parentId = value;
+            return;
+    }
+
+    _glfwInputError(GLFW_INVALID_ENUM, "Invalid window hint void value 0x%08X", hint);
 }
 
 GLFWAPI void glfwWindowHintString(int hint, const char* value)

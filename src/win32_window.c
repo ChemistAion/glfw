@@ -54,8 +54,10 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
             if (window->resizable)
                 style |= WS_MAXIMIZEBOX | WS_THICKFRAME;
         }
+        else if (window->embeddedWindow)
+            style |= WS_CHILD;
         else
-            style |= WS_POPUP;
+            style |= WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX;
     }
 
     return style;
@@ -65,10 +67,15 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 //
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
-    DWORD style = WS_EX_APPWINDOW;
+    DWORD style = 0u; // WS_EX_APPWINDOW;
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
+
+    if (window->embeddedWindow)
+        style |= WS_EX_NOINHERITLAYOUT;
+    else
+        style |= WS_EX_APPWINDOW;
 
     return style;
 }
@@ -567,6 +574,11 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             }
 
             break;
+
+            /* Stay unfocused but keep receiving mouse events, as the plugin window
+               is a child window and as such should not have keyboard focus in order
+               to let key events through to the host */
+            return MA_NOACTIVATE;
         }
 
         case WM_CAPTURECHANGED:
@@ -1390,8 +1402,8 @@ static int createNativeWindow(_GLFWwindow* window,
                                            style,
                                            frameX, frameY,
                                            frameWidth, frameHeight,
-                                           NULL, // No parent window
-                                           NULL, // No window menu
+                                           window->embeddedWindow ? (HWND)window->parentId : NULL,
+                                           NULL,
                                            _glfw.win32.instance,
                                            (LPVOID) wndconfig);
 
@@ -1420,6 +1432,10 @@ static int createNativeWindow(_GLFWwindow* window,
     window->win32.keymenu = wndconfig->win32.keymenu;
     window->win32.showDefault = wndconfig->win32.showDefault;
 
+    // ...this messes up the positioning inside the parent window for an
+    // embedded window. Until that is sorted, don't do this for embedded windows
+
+    //if (!window->monitor && !window->embeddedWindow)
     if (!window->monitor)
     {
         RECT rect = { 0, 0, wndconfig->width, wndconfig->height };
@@ -1487,6 +1503,12 @@ static int createNativeWindow(_GLFWwindow* window,
     }
 
     _glfwGetWindowSizeWin32(window, &window->win32.width, &window->win32.height);
+
+    //  if (window->embeddedWindow)
+    //  {
+    //      SetWindowLongPtr(window->win32.handle, GWLP_HWNDPARENT, (LONG_PTR)window->parentId);
+    //      UpdateWindow(window->win32.handle);
+    //  }
 
     return GLFW_TRUE;
 }
@@ -1566,6 +1588,9 @@ void _glfwDestroyWindowWin32(_GLFWwindow* window)
 
     if (_glfw.win32.capturedCursorWindow == window)
         releaseCursor();
+
+    if (window->embeddedWindow)
+        SetParent(window->win32.handle, NULL);
 
     if (window->win32.handle)
     {
