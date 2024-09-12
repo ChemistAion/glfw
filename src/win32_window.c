@@ -1435,8 +1435,8 @@ static int createNativeWindow(_GLFWwindow* window,
     // ...this messes up the positioning inside the parent window for an
     // embedded window. Until that is sorted, don't do this for embedded windows
 
-    //if (!window->monitor && !window->embeddedWindow)
-    if (!window->monitor)
+    if (!window->monitor && !window->embeddedWindow)
+    //if (!window->monitor)
     {
         RECT rect = { 0, 0, wndconfig->width, wndconfig->height };
         WINDOWPLACEMENT wp = { sizeof(wp) };
