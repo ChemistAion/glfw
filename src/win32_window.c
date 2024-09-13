@@ -1504,11 +1504,12 @@ static int createNativeWindow(_GLFWwindow* window,
 
     _glfwGetWindowSizeWin32(window, &window->win32.width, &window->win32.height);
 
-    //  if (window->embeddedWindow)
-    //  {
-    //      SetWindowLongPtr(window->win32.handle, GWLP_HWNDPARENT, (LONG_PTR)window->parentId);
-    //      UpdateWindow(window->win32.handle);
-    //  }
+    // Set embedded window owner
+    if (window->embeddedWindow)
+    {
+        SetWindowLongPtr(window->win32.handle, GWLP_HWNDPARENT, (LONG_PTR)window->parentId);
+        UpdateWindow(window->win32.handle);
+    }
 
     return GLFW_TRUE;
 }
