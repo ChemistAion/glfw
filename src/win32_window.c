@@ -64,7 +64,7 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 }
 
 // Returns the extended window style for the specified window
-//
+
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
     DWORD style = 0u; // WS_EX_APPWINDOW;
