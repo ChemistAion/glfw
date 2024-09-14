@@ -67,7 +67,8 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
-    DWORD style = 0u; // WS_EX_APPWINDOW;
+    //DWORD style = WS_EX_APPWINDOW;
+    DWORD style = 0u;
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
